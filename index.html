@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumesh Chathuranga | CS Engineer</title>
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0efff',
+                            200: '#b9ddff',
+                            300: '#7cc2ff',
+                            400: '#36a5ff',
+                            500: '#0088ff',
+                            600: '#0070df',
+                            700: '#0057b8',
+                            800: '#003b82',
+                            900: '#00326e',
+                            950: '#001e45',
+                        },
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1a1a1a',
+                            600: '#222222',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 10, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 87, 184, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 87, 184, 0.7);
+        }
+        
+        /* Text Gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #0057b8, #00b8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        /* Custom Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-up {
+            animation: fadeUp 0.8s ease forwards;
+        }
+        
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        .animate-delay-400 {
+            animation-delay: 0.4s;
+        }
+        
+        /* Canvas Styles */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(0.5px);
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dark .glass {
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* 3D Card Effect */
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease;
+        }
+        
+        .card-3d:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+        }
+        
+        /* Glow Effects */
+        .glow {
+            box-shadow: 0 0 15px rgba(0, 87, 184, 0.3);
+        }
+        
+        .glow:hover {
+            box-shadow: 0 0 25px rgba(0, 87, 184, 0.5);
+        }
+        
+        /* Blob Animation - balanced animation */
+        .blob {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            animation: blob 10s linear infinite; /* Moderate speed animation */
+            filter: blur(3px); /* Moderate blur for balanced appearance */
+        }
+        
+        @keyframes blob {
+            0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+            25% { border-radius: 50% 50% 60% 40% / 40% 50% 50% 60%; }
+            50% { border-radius: 40% 60% 50% 50% / 50% 60% 40% 50%; }
+            75% { border-radius: 55% 45% 45% 55% / 45% 45% 55% 55%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-white font-sans transition-colors duration-300">
+    <!-- Canvas Container for Three.js -->
+    <div id="canvas-container"></div>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark-900">
+        <div class="relative w-16 h-16 mb-4">
+            <div class="absolute inset-0 border-4 border-t-primary-600 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+        </div>
+        <div class="font-display font-bold text-2xl">
+            <span class="text-gradient">RUMESH</span>
+        </div>
+        <div class="mt-2 text-sm text-gray-400">Loading experience...</div>
+    </div>
+    
+    <!-- Navigation -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-40 transition-all duration-300">
+        <nav class="glass px-6 py-4">
+            <div class="container mx-auto flex items-center justify-between">
+                <!-- Logo -->
+                <a href="#home" class="flex items-center font-display font-bold text-xl tracking-wider">
+                    <span class="text-gradient">R</span>
+                    <span class="ml-1 text-white">UMESH</span>
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <ul class="hidden md:flex items-center space-x-8">
+                    <li><a href="#home" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Home</a></li>
+                    <li><a href="#about" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">About</a></li>
+                    <li><a href="#experience" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Experience</a></li>
+                    <li><a href="#projects" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Projects</a></li>
+                    <li><a href="#blog" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Blog</a></li>
+                    <li><a href="#contact" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Contact</a></li>
+                </ul>
+                
+                <!-- CTA Button -->
+                <div class="hidden md:block">
+                    <a href="#contact" class="px-5 py-2 text-sm font-medium bg-primary-700 hover:bg-primary-600 text-white rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50">
+                        Let's Connect
+                    </a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden fixed inset-0 z-50 flex items-center justify-center bg-dark-900 bg-opacity-95 backdrop-blur-lg transform translate-x-full transition-transform duration-300">
+            <button id="close-mobile-menu" class="absolute top-6 right-6 text-gray-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <ul class="flex flex-col items-center space-y-6">
+                <li><a href="#home" class="mobile-nav-link text-xl font-display font-medium text-white">Home</a></li>
+                <li><a href="#about" class="mobile-nav-link text-xl font-display font-medium text-white">About</a></li>
+                <li><a href="#experience" class="mobile-nav-link text-xl font-display font-medium text-white">Experience</a></li>
+                <li><a href="#projects" class="mobile-nav-link text-xl font-display font-medium text-white">Projects</a></li>
+                <li><a href="#blog" class="mobile-nav-link text-xl font-display font-medium text-white">Blog</a></li>
+                <li><a href="#contact" class="mobile-nav-link text-xl font-display font-medium text-white">Contact</a></li>
+                <li class="pt-4">
+                    <a href="#contact" class="px-6 py-3 text-base font-medium bg-primary-700 hover:bg-primary-600 text-white rounded-full transition-colors duration-300">
+                        Let's Connect
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen pt-32 pb-20 flex items-center">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+                <!-- Hero Image - Now first (left side on desktop) -->
+                <div class="lg:w-5/12 flex justify-center opacity-0 order-2 lg:order-1" id="hero-image">
+                    <div class="relative">
+                        <!-- Blob Background - Increased size to match larger profile image -->
+                        <div class="absolute inset-0 blob bg-primary-700 bg-opacity-20 transform scale-125 -z-10"></div>
+                        
+                        <!-- Profile Image - Increased size -->
+                        <div class="w-72 h-72 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-full overflow-hidden border-4 border-primary-700 glow">
+                            <img src="assets/docs/resume.pdf" alt="Rumesh Chathuranga" class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Removed the floating elements as requested -->
+                    </div>
+                </div>
+                
+                <!-- Hero Content - Now second (right side on desktop) with adjusted width -->
+                <div class="lg:w-7/12 opacity-0 order-1 lg:order-2" id="hero-content">
+                    <div class="inline-block px-4 py-2 mb-6 text-xs font-medium text-primary-400 bg-primary-700 bg-opacity-20 rounded-full">
+                        BSc Computer Science & Engineering Student
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-bold leading-tight mb-6">
+                        Hi, I'm <span class="text-gradient">Rumesh</span> Chathuranga
+                    </h1>
+                    
+                    <p class="text-lg text-gray-400 mb-8 max-w-lg">
+                        A passionate tech enthusiast dedicated to creating innovative solutions through code, design, and emerging technologies.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#projects" class="px-8 py-4 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                            View Projects
+                        </a>
+                        <a href="#contact" class="px-8 py-4 bg-transparent border border-primary-700 hover:bg-primary-700 hover:bg-opacity-10 text-primary-400 font-medium rounded-full transition-all duration-300 transform hover:-translate-y-1">
+                            Contact Me
+                        </a>
+                    </div>
+                    
+                    <!-- Social Links -->
+                    <div class="mt-12 flex items-center space-x-5">
+                        <span class="text-sm text-gray-500">Connect with me:</span>
+                        <a href="https://github.com/RumeshChathuranga" target="_blank" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">
+                            <i class="fab fa-github text-lg"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/rumeshchathuranga" target="_blank" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">
+                            <i class="fab fa-linkedin-in text-lg"></i>
+                        </a>
+                        <a href="https://www.facebook.com/rumarumesh1220/" target="_blank" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">
+                            <i class="fab fa-facebook-f text-lg"></i>
+                        </a>
+                        <a href="https://www.instagram.com/rumarumesh1220/" target="_blank" class="text-gray-400 hover:text-primary-400 transition-colors duration-300">
+                            <i class="fab fa-instagram text-lg"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scroll Indicator -->
+            <div class="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-0" id="scroll-indicator">
+                <span class="text-sm text-gray-400 mb-2">Scroll Down</span>
+                <div class="w-5 h-10 rounded-full border border-gray-600 flex items-start justify-center p-1">
+                    <div class="w-1 h-2 bg-primary-500 rounded-full animate-bounce"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="py-24 relative">
+        <div class="container mx-auto px-6">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-2">Get to know me</h2>
+                <h3 class="text-4xl font-display font-bold">About <span class="text-gradient">Me</span></h3>
+                <div class="mt-3 mx-auto w-24 h-1 bg-gradient-to-r from-primary-700 to-transparent"></div>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-12 items-center">
+                <!-- About Content -->
+                <div class="lg:w-2/3">
+                    <p class="text-lg text-gray-300 mb-6">
+                        Driven by curiosity and a passion for technology, I'm a BSc student in Computer Science & Engineering at the University of Moratuwa. I'm excited to explore the vast possibilities within software engineering and technology, constantly striving to create innovative solutions.
+                    </p>
+                    <p class="text-lg text-gray-300 mb-6">
+                        My journey includes a transformative internship at People's Bank in 2023, where I dove deep into the intersection of technology and business, sharpening my practical skills in a dynamic environment. Beyond academics, I've embraced leadership roles, spearheading projects in the Leo Club, where I combine my technical expertise with strong organizational abilities.
+                    </p>
+                    <p class="text-lg text-gray-300 mb-8">
+                        I'm on a mission to shape the future with cutting-edge technology, and I'm always eager to connect with like-minded professionals. Whether you're interested in collaborating on tech-driven innovations or tackling complex challenges, let's connect and explore opportunities that can drive the next wave of transformative projects!
+                    </p>
+                    
+                    <!-- Tech Stack -->
+                    <div class="mt-8">
+                        <h4 class="text-xl font-semibold mb-4">Technologies I work with</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">JavaScript</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">React.js</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">HTML/CSS</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">Python</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">Java</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">Node.js</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">MongoDB</span>
+                            <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">IT Infrastructure</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Resume Button -->
+                    <div class="mt-10">
+                        <a href="assets/docs/resume.pdf" download class="px-6 py-3 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Download Resume</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Services Cards -->
+                <div class="lg:w-1/3 grid grid-cols-1 gap-6">
+                    <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="w-14 h-14 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-xl mb-4">
+                            <i class="fas fa-laptop-code text-2xl text-primary-500"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">Web Development</h4>
+                        <p class="text-gray-400">Building responsive and modern web applications with cutting-edge technologies.</p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="w-14 h-14 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-xl mb-4">
+                            <i class="fas fa-database text-2xl text-primary-500"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">IT Infrastructure</h4>
+                        <p class="text-gray-400">Managing and optimizing technology infrastructure for maximum efficiency.</p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                        <div class="w-14 h-14 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-xl mb-4">
+                            <i class="fas fa-brain text-2xl text-primary-500"></i>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">Emerging Tech</h4>
+                        <p class="text-gray-400">Exploring AI, ML, and other cutting-edge technologies for innovative solutions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Experience Section -->
+    <section id="experience" class="py-24 relative">
+        <div class="container mx-auto px-6">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-2">My journey</h2>
+                <h3 class="text-4xl font-display font-bold">Experience & <span class="text-gradient">Education</span></h3>
+                <div class="mt-3 mx-auto w-24 h-1 bg-gradient-to-r from-primary-700 to-transparent"></div>
+            </div>
+            
+            <!-- Experience Timeline -->
+            <div class="max-w-4xl mx-auto">
+                <!-- Timeline Container -->
+                <div class="relative">
+                    <!-- Center Line -->
+                    <div class="absolute top-0 left-1/2 w-0.5 h-full bg-gradient-to-b from-primary-700 via-primary-900 to-transparent transform -translate-x-1/2"></div>
+                    
+                    <!-- Timeline Items - Reordered from newest to oldest -->
+                    <div class="timeline-items space-y-16 relative">
+                        <!-- Item 1: University Education (now first) -->
+                        <div class="timeline-item flex flex-col md:flex-row items-center md:items-start gap-8">
+                            <!-- Timeline Dot -->
+                            <div class="timeline-dot w-6 h-6 bg-primary-600 rounded-full border-4 border-dark-900 z-10 md:absolute md:left-1/2 md:top-6 md:transform md:-translate-x-1/2"></div>
+                            
+                            <!-- Date (Left Side) -->
+                            <div class="md:w-1/2 md:pr-12 md:text-right">
+                                <div class="glass inline-block px-4 py-1 rounded-full text-sm text-primary-400 mb-2">
+                                    2023 - 2028 (Expected)
+                                </div>
+                            </div>
+                            
+                            <!-- Content (Right Side) -->
+                            <div class="md:w-1/2 md:pl-12">
+                                <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                            <img src="/api/placeholder/48/48" alt="University of Moratuwa Logo" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-semibold">BSc in Computer Science and Engineering</h4>
+                                            <p class="text-primary-400">University of Moratuwa</p>
+                                        </div>
+                                    </div>
+                                    <p class="mt-4 text-gray-300">
+                                        Pursuing a comprehensive degree in Computer Science and Engineering, focusing on software development, algorithms, data structures, and emerging technologies.
+                                    </p>
+                                    <div class="mt-4 flex flex-wrap gap-2">
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Software Engineering</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Algorithms</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Data Structures</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 2: Bank Internship (now second) -->
+                        <div class="timeline-item flex flex-col md:flex-row items-center md:items-start gap-8">
+                            <!-- Timeline Dot -->
+                            <div class="timeline-dot w-6 h-6 bg-primary-600 rounded-full border-4 border-dark-900 z-10 md:absolute md:left-1/2 md:top-6 md:transform md:-translate-x-1/2"></div>
+                            
+                            <!-- Content (Left Side) -->
+                            <div class="md:w-1/2 md:pr-12 md:text-right">
+                                <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300">
+                                    <div class="flex items-start gap-4 md:flex-row-reverse md:justify-start">
+                                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                            <img src="/api/placeholder/48/48" alt="People's Bank Logo" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <div class="md:text-right">
+                                            <h4 class="text-xl font-semibold">Internship Trainee</h4>
+                                            <p class="text-primary-400">People's Bank</p>
+                                            <p class="text-sm text-gray-400 mt-1"><i class="fas fa-map-marker-alt mr-1"></i> Badulla, Sri Lanka</p>
+                                        </div>
+                                    </div>
+                                    <p class="mt-4 text-gray-300">
+                                        Worked in the Savings section focusing on Information Technology Infrastructure at the Badulla branch, gaining practical experience in banking technology systems.
+                                    </p>
+                                    <div class="mt-4 flex flex-wrap gap-2 md:justify-end">
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">IT Infrastructure</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Banking Systems</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Technology Integration</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Date (Right Side) -->
+                            <div class="md:w-1/2 md:pl-12">
+                                <div class="glass inline-block px-4 py-1 rounded-full text-sm text-primary-400 mb-2">
+                                    Sep 2023 - Feb 2024
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 3: Secondary Education -->
+                        <div class="timeline-item flex flex-col md:flex-row items-center md:items-start gap-8">
+                            <!-- Timeline Dot -->
+                            <div class="timeline-dot w-6 h-6 bg-primary-600 rounded-full border-4 border-dark-900 z-10 md:absolute md:left-1/2 md:top-6 md:transform md:-translate-x-1/2"></div>
+                            
+                            <!-- Date (Left Side) -->
+                            <div class="md:w-1/2 md:pr-12 md:text-right">
+                                <div class="glass inline-block px-4 py-1 rounded-full text-sm text-primary-400 mb-2">
+                                    Jan 2014 - Feb 2023
+                                </div>
+                            </div>
+                            
+                            <!-- Content (Right Side) -->
+                            <div class="md:w-1/2 md:pl-12">
+                                <div class="glass rounded-2xl p-6 hover:border-primary-700 transition-all duration-300">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-lg bg-white flex items-center justify-center">
+                                            <img src="/api/placeholder/48/48" alt="Badulla Central College Logo" class="w-8 h-8 object-contain">
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-semibold">Secondary Education</h4>
+                                            <p class="text-primary-400">Badulla Central College</p>
+                                        </div>
+                                    </div>
+                                    <p class="mt-4 text-gray-300">
+                                        Completed secondary education with a focus on mathematics and science, building a strong foundation for further studies in engineering.
+                                    </p>
+                                    <div class="mt-4 flex flex-wrap gap-2">
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Mathematics</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Physics</span>
+                                        <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Computer Studies</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 relative">
+        <div class="container mx-auto px-6">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-2">My work</h2>
+                <h3 class="text-4xl font-display font-bold">Featured <span class="text-gradient">Projects</span></h3>
+                <div class="mt-3 mx-auto w-24 h-1 bg-gradient-to-r from-primary-700 to-transparent"></div>
+            </div>
+            
+            <!-- Projects Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="Banking System Interface" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">Banking System Interface</h4>
+                        <p class="text-gray-400 mb-4">
+                            A modern interface for banking systems created during my internship at People's Bank.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">JavaScript</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">React</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">UI/UX</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 2 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="Smart Campus Solution" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">Smart Campus Solution</h4>
+                        <p class="text-gray-400 mb-4">
+                            IoT-based campus management system for university facilities with real-time monitoring.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">IoT</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Python</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Raspberry Pi</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 3 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="E-Learning Platform" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">E-Learning Platform</h4>
+                        <p class="text-gray-400 mb-4">
+                            Web-based learning management system for educational institutions with interactive features.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">React</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Node.js</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">MongoDB</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 4 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="AI-Powered Recommender" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">AI-Powered Recommender</h4>
+                        <p class="text-gray-400 mb-4">
+                            Machine learning recommendation system for personalized content delivery.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Python</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">TensorFlow</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Flask</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 5 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="Blockchain Certificate System" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">Blockchain Certificate System</h4>
+                        <p class="text-gray-400 mb-4">
+                            Secure certificate issuance and verification system using blockchain technology.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Solidity</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Ethereum</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Web3.js</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 6 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="AR Navigation App" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2">AR Navigation App</h4>
+                        <p class="text-gray-400 mb-4">
+                            Augmented reality application for indoor navigation in complex buildings.
+                        </p>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">Unity</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">ARKit</span>
+                            <span class="px-3 py-1 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-xs">C#</span>
+                        </div>
+                        <div class="pt-4 border-t border-gray-800 flex justify-between items-center">
+                            <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors">
+                                <span>View Project</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                            <div class="flex space-x-3">
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View All Projects Button -->
+            <div class="mt-16 text-center">
+                <a href="#" class="px-8 py-4 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                    <span>View All Projects</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Blog Section -->
+    <section id="blog" class="py-24 relative">
+        <div class="container mx-auto px-6">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-2">My thoughts</h2>
+                <h3 class="text-4xl font-display font-bold">Latest <span class="text-gradient">Articles</span></h3>
+                <div class="mt-3 mx-auto w-24 h-1 bg-gradient-to-r from-primary-700 to-transparent"></div>
+            </div>
+            
+            <!-- Blog Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog Post 1 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="The Future of AI" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-primary-700 text-white rounded-full text-xs">Technology</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-400 mb-3">
+                            <span><i class="far fa-calendar-alt mr-2"></i>April 2, 2025</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="far fa-clock mr-2"></i>5 min read</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">The Future of AI in Everyday Applications</h4>
+                        <p class="text-gray-400 mb-4">
+                            Exploring how artificial intelligence is transforming our daily interactions with technology and what to expect in the near future.
+                        </p>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors mt-4">
+                            <span>Read More</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Blog Post 2 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="Web Development Trends" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-primary-700 text-white rounded-full text-xs">Web Development</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-400 mb-3">
+                            <span><i class="far fa-calendar-alt mr-2"></i>March 15, 2025</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="far fa-clock mr-2"></i>4 min read</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">5 Web Development Trends to Watch in 2025</h4>
+                        <p class="text-gray-400 mb-4">
+                            A look at the emerging technologies and practices that are reshaping how we build and experience the web.
+                        </p>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors mt-4">
+                            <span>Read More</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Blog Post 3 -->
+                <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="/api/placeholder/400/240" alt="Banking Technology" class="w-full h-full object-cover transition-transform duration-700 hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark-900 to-transparent opacity-60"></div>
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-primary-700 text-white rounded-full text-xs">Finance Tech</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center text-sm text-gray-400 mb-3">
+                            <span><i class="far fa-calendar-alt mr-2"></i>February 28, 2025</span>
+                            <span class="mx-2">•</span>
+                            <span><i class="far fa-clock mr-2"></i>6 min read</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-3">How Technology is Revolutionizing Banking Infrastructure</h4>
+                        <p class="text-gray-400 mb-4">
+                            Insights from my internship experience on how modern technology stacks are transforming traditional banking systems.
+                        </p>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors mt-4">
+                            <span>Read More</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View All Articles Button -->
+            <div class="mt-16 text-center">
+                <a href="#" class="px-8 py-4 bg-transparent border border-primary-700 hover:bg-primary-700 hover:bg-opacity-10 text-primary-400 font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1">
+                    <span>View All Articles</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter Section -->
+    <section class="py-16 relative">
+        <div class="container mx-auto px-6">
+            <div class="glass rounded-3xl overflow-hidden">
+                <div class="p-10 md:p-16 relative">
+                    <!-- Background Elements -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-primary-700 bg-opacity-10 rounded-full filter blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-primary-700 bg-opacity-10 rounded-full filter blur-3xl translate-y-1/3 -translate-x-1/4"></div>
+                    
+                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-10">
+                        <div class="md:w-1/2">
+                            <h3 class="text-3xl font-display font-bold mb-4">Stay updated with my <span class="text-gradient">latest insights</span></h3>
+                            <p class="text-gray-300">
+                                Subscribe to my newsletter for tech insights, project updates, and emerging technology trends. No spam, just valuable content delivered to your inbox.
+                            </p>
+                        </div>
+                        
+                        <div class="md:w-1/2 w-full">
+                            <form class="flex flex-col sm:flex-row gap-3 w-full">
+                                <input type="email" placeholder="Your email address" class="flex-grow px-6 py-4 rounded-full bg-dark-800 border border-gray-700 text-white focus:outline-none focus:border-primary-500">
+                                <button type="submit" class="px-6 py-4 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full transition-all duration-300 whitespace-nowrap">
+                                    Subscribe
+                                </button>
+                            </form>
+                            <p class="text-xs text-gray-500 mt-3">I respect your privacy. Unsubscribe at any time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 relative">
+        <div class="container mx-auto px-6">
+            <!-- Section Title -->
+            <div class="mb-16 text-center">
+                <h2 class="text-sm uppercase tracking-wider text-gray-400 mb-2">Get in touch</h2>
+                <h3 class="text-4xl font-display font-bold">Let's <span class="text-gradient">Connect</span></h3>
+                <div class="mt-3 mx-auto w-24 h-1 bg-gradient-to-r from-primary-700 to-transparent"></div>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-10">
+                <!-- Contact Info -->
+                <div class="lg:w-2/5">
+                    <div class="glass rounded-2xl p-8">
+                        <h4 class="text-2xl font-semibold mb-6">Contact Information</h4>
+                        <p class="text-gray-400 mb-8">
+                            I'm interested in collaborating on tech-driven innovations and tackling complex challenges. Feel free to contact me through any of these channels.
+                        </p>
+                        
+                        <!-- Contact Methods -->
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-medium mb-1">Phone</h5>
+                                    <p class="text-gray-400">+9471-0420359</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-medium mb-1">Email</h5>
+                                    <p class="text-gray-400">chathurangarmr.23@uom.lk</p>
+                                    <p class="text-gray-400">rumarumesh1220@gmail.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-lg font-medium mb-1">Location</h5>
+                                    <p class="text-gray-400">Badulla District, Uva Province, Sri Lanka</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Social Media Links -->
+                        <div class="mt-10">
+                            <h5 class="text-lg font-medium mb-4">Find me on</h5>
+                            <div class="flex space-x-4">
+                                <a href="https://github.com/RumeshChathuranga" target="_blank" class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400 hover:bg-primary-700 hover:text-white transition-all duration-300">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/rumeshchathuranga" target="_blank" class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400 hover:bg-primary-700 hover:text-white transition-all duration-300">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://www.facebook.com/rumarumesh1220/" target="_blank" class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400 hover:bg-primary-700 hover:text-white transition-all duration-300">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                                <a href="https://www.instagram.com/rumarumesh1220/" target="_blank" class="w-12 h-12 flex items-center justify-center bg-primary-700 bg-opacity-20 rounded-lg text-primary-400 hover:bg-primary-700 hover:text-white transition-all duration-300">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Form -->
+                <div class="lg:w-3/5">
+                    <div class="glass rounded-2xl p-8">
+                        <h4 class="text-2xl font-semibold mb-6">Send Me a Message</h4>
+                        <form action="https://formspree.io/f/xdkepjze" method="POST">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="name" class="block text-sm text-gray-400 mb-2">Your Name</label>
+                                    <input type="text" id="name" name="name" required class="w-full px-4 py-3 bg-dark-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm text-gray-400 mb-2">Your Email</label>
+                                    <input type="email" id="email" name="email" required class="w-full px-4 py-3 bg-dark-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors">
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="subject" class="block text-sm text-gray-400 mb-2">Subject</label>
+                                <input type="text" id="subject" name="subject" required class="w-full px-4 py-3 bg-dark-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="message" class="block text-sm text-gray-400 mb-2">Your Message</label>
+                                <textarea id="message" name="message" rows="6" required class="w-full px-4 py-3 bg-dark-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary-500 transition-colors resize-none"></textarea>
+                            </div>
+                            
+                            <!-- Hidden honeypot field to prevent spam -->
+                            <input type="text" name="_gotcha" style="display:none">
+                            
+                            <button type="submit" class="w-full px-6 py-4 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-lg transition-all duration-300 transform hover:-translate-y-1">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="pt-20 pb-10 relative">
+        <div class="container mx-auto px-6">
+            <!-- Footer Top -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-16 pb-8 border-b border-gray-800">
+                <!-- Logo -->
+                <a href="#home" class="flex items-center font-display font-bold text-2xl tracking-wider mb-6 md:mb-0">
+                    <span class="text-gradient">RUMESH</span>
+                    <span class="ml-1 text-white">CHATHURANGA</span>
+                </a>
+                
+                <!-- Footer Navigation -->
+                <ul class="flex flex-wrap justify-center gap-8">
+                    <li><a href="#home" class="text-gray-400 hover:text-primary-400 transition-colors">Home</a></li>
+                    <li><a href="#about" class="text-gray-400 hover:text-primary-400 transition-colors">About</a></li>
+                    <li><a href="#experience" class="text-gray-400 hover:text-primary-400 transition-colors">Experience</a></li>
+                    <li><a href="#projects" class="text-gray-400 hover:text-primary-400 transition-colors">Projects</a></li>
+                    <li><a href="#blog" class="text-gray-400 hover:text-primary-400 transition-colors">Blog</a></li>
+                    <li><a href="#contact" class="text-gray-400 hover:text-primary-400 transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">
+                    © 2025 Rumesh Chathuranga. All Rights Reserved.
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="https://github.com/RumeshChathuranga" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/rumeshchathuranga" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://www.facebook.com/rumarumesh1220/" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/rumarumesh1220/" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-primary-700 text-white rounded-full flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary-600 focus:outline-none z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Three.js
+            initThreeJS();
+            
+            // Initialize P5.js
+            initP5JS();
+            
+            // Loading Screen
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    
+                    // Animate Hero Elements
+                    gsap.to('#hero-content', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: 'power3.out'
+                    });
+                    
+                    gsap.to('#hero-image', {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        delay: 0.3,
+                        ease: 'power3.out'
+                    });
+                    
+                    gsap.to('#scroll-indicator', {
+                        opacity: 0.7,
+                        y: 0,
+                        duration: 1,
+                        delay: 0.6,
+                        ease: 'power3.out'
+                    });
+                }, 500);
+            }, 2000);
+            
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMobileMenu = document.getElementById('close-mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.remove('translate-x-full');
+            });
+            
+            closeMobileMenu.addEventListener('click', function() {
+                mobileMenu.classList.add('translate-x-full');
+            });
+            
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('translate-x-full');
+                });
+            });
+            
+            // Navbar Scroll Effect
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-3', 'backdrop-blur-lg');
+                    navbar.classList.remove('py-4');
+                } else {
+                    navbar.classList.add('py-4');
+                    navbar.classList.remove('py-3', 'backdrop-blur-lg');
+                }
+            });
+            
+            // Scroll to section smoothly
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    const navbarHeight = document.getElementById('navbar').offsetHeight;
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - navbarHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Back to Top Button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.remove('opacity-0', 'invisible');
+                    backToTopBtn.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopBtn.classList.remove('opacity-100', 'visible');
+                    backToTopBtn.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // GSAP ScrollTrigger Animations
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Timeline Animation
+            gsap.utils.toArray('.timeline-item').forEach((item, i) => {
+                gsap.from(item, {
+                    opacity: 0,
+                    y: 50,
+                    duration: 1,
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 80%',
+                        end: 'bottom 60%',
+                        toggleActions: 'play none none none'
+                    }
+                });
+            });
+            
+            // Active Navigation Link
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            function highlightNavLink() {
+                const scrollPosition = window.scrollY + 100;
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 100;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    const sectionId = section.getAttribute('id');
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('text-primary-400');
+                            link.classList.add('text-gray-300');
+                            
+                            if (link.getAttribute('href') === `#${sectionId}`) {
+                                link.classList.remove('text-gray-300');
+                                link.classList.add('text-primary-400');
+                            }
+                        });
+                    }
+                });
+            }
+            
+            window.addEventListener('scroll', highlightNavLink);
+            
+            // Contact Form Submission (Example - No actual submission)
+            const contactForm = document.querySelector('#contact form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Form submission logic would go here
+                    alert('Thank you for your message! I will get back to you soon.');
+                    contactForm.reset();
+                });
+            }
+        });
+        
+        // Three.js Background
+        function initThreeJS() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Create stars - adjusted for better visibility and circular shape
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0x4a6b8f,
+                size: 0.8,
+                sizeAttenuation: true,
+                opacity: 0.6,
+                transparent: true,
+                map: createCircleTexture('#4a6b8f', 256), // Use circular texture
+                alphaTest: 0.1 // Prevents rendering pixels with low alpha
+            });
+            
+            // Function to create circular texture for particles
+            function createCircleTexture(color, size) {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const context = canvas.getContext('2d');
+                
+                // Draw circle
+                context.beginPath();
+                context.arc(size/2, size/2, size/2, 0, 2 * Math.PI);
+                context.fillStyle = color;
+                context.fill();
+                
+                // Create texture with soft edges
+                const gradient = context.createRadialGradient(
+                    size/2, size/2, 0,
+                    size/2, size/2, size/2
+                );
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                context.globalCompositeOperation = 'source-atop';
+                context.fillStyle = gradient;
+                context.fillRect(0, 0, size, size);
+                
+                const texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            }
+            
+            const starsCount = 1500;
+            const positions = new Float32Array(starsCount * 3);
+            const sizes = new Float32Array(starsCount);
+            
+            for (let i = 0; i < starsCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 300;
+                positions[i3 + 1] = (Math.random() - 0.5) * 300;
+                positions[i3 + 2] = (Math.random() - 0.5) * 300;
+                
+                sizes[i] = Math.random() * 1.5;
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+            
+            // Create Particles - adjusted for better visibility and circular shape
+            const particlesCount = 150;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x0088ff, // Brighter blue
+                size: 2.2,
+                sizeAttenuation: true,
+                opacity: 0.4,
+                transparent: true,
+                map: createCircleTexture('#0088ff', 256), // Use circular texture
+                alphaTest: 0.1 // Prevents rendering pixels with low alpha
+            });
+            
+            const particlesPositions = new Float32Array(particlesCount * 3);
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                particlesPositions[i3] = (Math.random() - 0.5) * 200;
+                particlesPositions[i3 + 1] = (Math.random() - 0.5) * 200;
+                particlesPositions[i3 + 2] = (Math.random() - 0.5) * 200;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            
+            camera.position.z = 50;
+            
+            // Mouse parallax effect
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                targetX = mouseX * 0.15;
+                targetY = mouseY * 0.15;
+                
+                stars.rotation.y += 0.0005;
+                stars.rotation.x += targetY * 0.01;
+                stars.rotation.y += targetX * 0.01;
+                
+                particles.rotation.y += 0.001;
+                particles.rotation.x += targetY * 0.02;
+                particles.rotation.y += targetX * 0.02;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+        }
+        
+        // P5.js Interactive Elements
+        function initP5JS() {
+            let sketch = function(p) {
+                let particles = [];
+                const numParticles = 24; // Increased but still moderate
+                
+                p.setup = function() {
+                    let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                    canvas.position(0, 0);
+                    canvas.style('z-index', '-1');
+                    canvas.style('position', 'fixed');
+                    canvas.style('pointer-events', 'none');
+                    canvas.style('filter', 'blur(1px)'); // Less blur for better visibility
+                    canvas.style('opacity', '0.5'); // Increased opacity
+                    
+                    for (let i = 0; i < numParticles; i++) {
+                        particles.push(new Particle());
+                    }
+                };
+                
+                p.draw = function() {
+                    p.clear();
+                    
+                    for (let i = 0; i < particles.length; i++) {
+                        particles[i].update();
+                        particles[i].display();
+                        particles[i].connect(particles);
+                    }
+                };
+                
+                p.windowResized = function() {
+                    p.resizeCanvas(p.windowWidth, p.windowHeight);
+                };
+                
+                class Particle {
+                    constructor() {
+                        this.position = p.createVector(p.random(p.width), p.random(p.height));
+                        this.velocity = p.createVector(p.random(-0.2, 0.2), p.random(-0.2, 0.2));
+                        this.size = p.random(2.5, 6); // Slightly larger particles
+                        this.color = p.color(0, 136, 255, p.random(15, 40)); // Brighter blue, more visible
+                    }
+                    
+                    update() {
+                        this.position.add(this.velocity);
+                        
+                        if (this.position.x < 0 || this.position.x > p.width) {
+                            this.velocity.x *= -1;
+                        }
+                        
+                        if (this.position.y < 0 || this.position.y > p.height) {
+                            this.velocity.y *= -1;
+                        }
+                    }
+                    
+                    display() {
+                        p.noStroke(); // Ensure no stroke
+                        p.fill(this.color);
+                        p.ellipse(this.position.x, this.position.y, this.size, this.size); // Ensure truly circular
+                    }
+                    
+                    connect(particles) {
+                        for (let i = 0; i < particles.length; i++) {
+                            let other = particles[i];
+                            let distance = p.dist(this.position.x, this.position.y, other.position.x, other.position.y);
+                            
+                            if (distance < 130) { // Slightly increased connection distance
+                                let alpha = p.map(distance, 0, 130, 60, 0);
+                                p.stroke(0, 136, 255, alpha * 0.15); // Brighter blue, slightly more visible
+                                p.line(this.position.x, this.position.y, other.position.x, other.position.y);
+                            }
+                        }
+                    }
+                }
+            };
+            
+            new p5(sketch);
+        }
+    </script>
+</body>
+</html>
