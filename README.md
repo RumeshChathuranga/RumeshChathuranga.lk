@@ -1,6 +1,6 @@
 # Rumesh Chathuranga - Portfolio Website
 
-![Portfolio Preview](assets/images/website-preview.png)
+![Portfolio Preview](assests/images/website-preview.png)
 
 ## Overview
 
