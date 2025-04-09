@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking System Interface | Rumesh Chathuranga</title>
+    <meta name="description" content="Detailed case study of the Banking System Interface project by Rumesh Chathuranga, developed during internship at People's Bank.">
+    <link rel="icon" href="assests/images/logo.png" type="image/png">
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f7ff',
+                            100: '#e0efff',
+                            200: '#b9ddff',
+                            300: '#7cc2ff',
+                            400: '#36a5ff',
+                            500: '#0088ff',
+                            600: '#0070df',
+                            700: '#0057b8',
+                            800: '#003b82',
+                            900: '#00326e',
+                            950: '#001e45',
+                        },
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1a1a1a',
+                            600: '#222222',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 10, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 87, 184, 0.5);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 87, 184, 0.7);
+        }
+        
+        /* Text Gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #0057b8, #00b8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        
+        /* Custom Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-up {
+            animation: fadeUp 0.8s ease forwards;
+        }
+        
+        /* Canvas Styles */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(0.5px);
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        .dark .glass {
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-white font-sans transition-colors duration-300">
+    <!-- Canvas Container for Three.js -->
+    <div id="canvas-container"></div>
+    
+    <!-- Navigation -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-40 transition-all duration-300">
+        <nav class="glass px-6 py-4">
+            <div class="container mx-auto flex items-center justify-between">
+                <!-- Logo -->
+                <a href="index.html#home" class="flex items-center font-display font-bold text-xl tracking-wider">
+                    <span class="text-gradient">R</span>
+                    <span class="ml-1 text-white">UMESH</span>
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <ul class="hidden md:flex items-center space-x-8">
+                    <li><a href="index.html#home" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Home</a></li>
+                    <li><a href="index.html#about" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">About</a></li>
+                    <li><a href="index.html#experience" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Experience</a></li>
+                    <li><a href="index.html#projects" class="nav-link text-sm font-medium text-primary-400 hover:text-primary-400 transition-colors duration-300">Projects</a></li>
+                    <li><a href="index.html#blog" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Blog</a></li>
+                    <li><a href="index.html#contact" class="nav-link text-sm font-medium text-gray-300 hover:text-primary-400 transition-colors duration-300">Contact</a></li>
+                </ul>
+                
+                <!-- CTA Button -->
+                <div class="hidden md:block">
+                    <a href="index.html#contact" class="px-5 py-2 text-sm font-medium bg-primary-700 hover:bg-primary-600 text-white rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50">
+                        Let's Connect
+                    </a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden fixed inset-0 z-50 flex items-center justify-center bg-dark-900 bg-opacity-95 backdrop-blur-lg transform translate-x-full transition-transform duration-300">
+            <button id="close-mobile-menu" class="absolute top-6 right-6 text-gray-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            <ul class="flex flex-col items-center space-y-6">
+                <li><a href="index.html#home" class="mobile-nav-link text-xl font-display font-medium text-white">Home</a></li>
+                <li><a href="index.html#about" class="mobile-nav-link text-xl font-display font-medium text-white">About</a></li>
+                <li><a href="index.html#experience" class="mobile-nav-link text-xl font-display font-medium text-white">Experience</a></li>
+                <li><a href="index.html#projects" class="mobile-nav-link text-xl font-display font-medium text-white">Projects</a></li>
+                <li><a href="index.html#blog" class="mobile-nav-link text-xl font-display font-medium text-white">Blog</a></li>
+                <li><a href="index.html#contact" class="mobile-nav-link text-xl font-display font-medium text-white">Contact</a></li>
+                <li class="pt-4">
+                    <a href="index.html#contact" class="px-6 py-3 text-base font-medium bg-primary-700 hover:bg-primary-600 text-white rounded-full transition-colors duration-300">
+                        Let's Connect
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </header>
+    
+    <!-- Breadcrumbs -->
+    <div class="pt-32 pb-4 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex items-center text-sm text-gray-400">
+                <a href="index.html" class="hover:text-primary-400 transition-colors">Home</a>
+                <span class="mx-2">/</span>
+                <a href="all-projects.html" class="hover:text-primary-400 transition-colors">Projects</a>
+                <span class="mx-2">/</span>
+                <span class="text-primary-400">Banking System Interface</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Project Header -->
+    <section class="py-10 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between gap-8">
+                <div class="md:w-7/12">
+                    <div class="inline-block px-4 py-2 mb-4 text-xs font-medium text-primary-400 bg-primary-700 bg-opacity-20 rounded-full">
+                        Web Development
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-display font-bold leading-tight mb-6">
+                        Banking System <span class="text-gradient">Interface</span>
+                    </h1>
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">JavaScript</span>
+                        <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">React.js</span>
+                        <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">UI/UX Design</span>
+                        <span class="px-4 py-2 bg-primary-900 bg-opacity-30 text-primary-300 rounded-full text-sm">Banking Systems</span>
+                    </div>
+                </div>
+                
+                <div class="md:w-5/12 flex flex-col md:items-end">
+                    <div class="glass rounded-xl p-6 w-full">
+                        <h3 class="text-xl font-semibold mb-4">Project Overview</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Client</p>
+                                <p class="font-medium">People's Bank</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Timeline</p>
+                                <p class="font-medium">Sep 2023 - Feb 2024</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Role</p>
+                                <p class="font-medium">UI Developer</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Location</p>
+                                <p class="font-medium">Badulla, Sri Lanka</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-6">
+                        <a href="#" class="px-6 py-3 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300">
+                            <i class="fas fa-eye"></i>
+                            <span>Live Demo</span>
+                        </a>
+                        <a href="https://github.com/RumeshChathuranga" target="_blank" class="px-6 py-3 bg-transparent border border-gray-700 hover:border-primary-700 text-white font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300">
+                            <i class="fab fa-github"></i>
+                            <span>Source Code</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Project Featured Image -->
+    <section class="py-8 relative">
+        <div class="container mx-auto px-6">
+            <div class="glass rounded-2xl overflow-hidden">
+                <img src="assests/images/test.png" alt="Banking System Interface" class="w-full h-auto object-cover">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Project Content -->
+    <section class="py-16 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row gap-12">
+                <!-- Main Content -->
+                <div class="lg:w-8/12">
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">Project Description</h2>
+                        <p class="text-gray-300 mb-6">
+                            During my internship at People's Bank in Badulla, I had the opportunity to develop a modern, responsive interface for their banking system. This project aimed to enhance the user experience for both bank employees and customers by creating a more intuitive, efficient, and visually appealing interface.
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            The banking interface features a dashboard for quick access to common functions, account management tools, transaction processing capabilities, and reporting features. The design focuses on user-centered principles, ensuring that common tasks can be completed quickly with minimal friction.
+                        </p>
+                        <p class="text-gray-300">
+                            Working closely with the IT infrastructure team, I ensured that the new interface integrated smoothly with existing backend systems while providing a modern user experience. The project involved extensive user research, prototyping, and iterative development based on feedback from bank employees.
+                        </p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">The Challenge</h2>
+                        <p class="text-gray-300 mb-6">
+                            The primary challenge was to modernize the banking interface while ensuring compatibility with legacy systems. The existing interface was outdated, slow, and not optimized for efficient workflows, causing frustration among staff and impacting customer service.
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            Key challenges included:
+                        </p>
+                        <ul class="list-disc list-inside space-y-3 text-gray-300 mb-6 pl-4">
+                            <li>Integrating with existing backend systems without disrupting critical banking operations</li>
+                            <li>Designing an interface that accommodated both experienced users and new employees with minimal training</li>
+                            <li>Ensuring high security standards while improving usability</li>
+                            <li>Creating a responsive design that worked across various devices and screen sizes</li>
+                            <li>Meeting strict banking regulations and compliance requirements</li>
+                        </ul>
+                        <p class="text-gray-300">
+                            Additionally, the project needed to be completed within a tight timeframe to minimize disruption to daily banking operations.
+                        </p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">The Solution</h2>
+                        <p class="text-gray-300 mb-6">
+                            I adopted a user-centered design approach, beginning with extensive research into the workflows and pain points of bank employees. This involved shadowing staff, conducting interviews, and analyzing user behavior data to identify opportunities for improvement.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <img src="assests/images/test.png" alt="Dashboard Design" class="rounded-xl w-full h-auto">
+                            <img src="assests/images/test.png" alt="Transaction Screen" class="rounded-xl w-full h-auto">
+                        </div>
+                        <p class="text-gray-300 mb-6">
+                            The solution included:
+                        </p>
+                        <ul class="list-disc list-inside space-y-3 text-gray-300 mb-6 pl-4">
+                            <li>A customizable dashboard allowing users to prioritize their most common tasks</li>
+                            <li>Streamlined transaction processing with fewer clicks and clearer confirmation steps</li>
+                            <li>Advanced search functionality to quickly locate customer accounts and information</li>
+                            <li>Improved data visualization for account history and reporting</li>
+                            <li>Responsive design that adapted to various screen sizes and devices</li>
+                            <li>Clear error messaging and guidance to reduce user mistakes</li>
+                        </ul>
+                        <p class="text-gray-300">
+                            The interface was built using React.js for the frontend, with a focus on component reusability and performance. I implemented a design system to ensure consistency across the application and facilitate future enhancements.
+                        </p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">Development Process</h2>
+                        <div class="relative">
+                            <!-- Timeline Line -->
+                            <div class="absolute left-4 top-0 h-full w-0.5 bg-primary-700 bg-opacity-30"></div>
+                            
+                            <!-- Timeline Items -->
+                            <div class="space-y-8 relative pl-16">
+                                <!-- Phase 1 -->
+                                <div class="relative">
+                                    <div class="absolute left-[-3rem] top-1.5 w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center z-10">
+                                        <span class="text-xs font-bold">01</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-3">Research & Discovery</h3>
+                                    <p class="text-gray-300 mb-3">
+                                        I began with a comprehensive analysis of the existing system, identifying pain points, bottlenecks, and opportunities for improvement. This involved:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-300 mb-3 pl-4">
+                                        <li>Shadowing bank employees to understand their daily workflows</li>
+                                        <li>Conducting interviews with different department members</li>
+                                        <li>Analyzing user feedback and support tickets</li>
+                                        <li>Reviewing industry best practices and competitor interfaces</li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Phase 2 -->
+                                <div class="relative">
+                                    <div class="absolute left-[-3rem] top-1.5 w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center z-10">
+                                        <span class="text-xs font-bold">02</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-3">Prototyping & Design</h3>
+                                    <p class="text-gray-300 mb-3">
+                                        Based on research findings, I created wireframes and interactive prototypes to visualize the new interface and gather early feedback:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-300 mb-3 pl-4">
+                                        <li>Developing low-fidelity wireframes to establish layout and information hierarchy</li>
+                                        <li>Creating high-fidelity mockups with the bank's branding</li>
+                                        <li>Building interactive prototypes for user testing</li>
+                                        <li>Conducting usability tests with bank employees</li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Phase 3 -->
+                                <div class="relative">
+                                    <div class="absolute left-[-3rem] top-1.5 w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center z-10">
+                                        <span class="text-xs font-bold">03</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-3">Development</h3>
+                                    <p class="text-gray-300 mb-3">
+                                        With approved designs, I moved to the development phase:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-300 mb-3 pl-4">
+                                        <li>Setting up the React.js project architecture</li>
+                                        <li>Implementing the component-based UI system</li>
+                                        <li>Integrating with backend APIs and services</li>
+                                        <li>Ensuring responsive behavior across devices</li>
+                                        <li>Implementing security best practices</li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Phase 4 -->
+                                <div class="relative">
+                                    <div class="absolute left-[-3rem] top-1.5 w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center z-10">
+                                        <span class="text-xs font-bold">04</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-3">Testing & Iteration</h3>
+                                    <p class="text-gray-300 mb-3">
+                                        Before full deployment, the interface underwent extensive testing:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-300 mb-3 pl-4">
+                                        <li>Unit and integration testing of all components</li>
+                                        <li>User acceptance testing with bank employees</li>
+                                        <li>Performance and security testing</li>
+                                        <li>Iterative improvements based on feedback</li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Phase 5 -->
+                                <div class="relative">
+                                    <div class="absolute left-[-3rem] top-1.5 w-8 h-8 rounded-full bg-primary-700 flex items-center justify-center z-10">
+                                        <span class="text-xs font-bold">05</span>
+                                    </div>
+                                    <h3 class="text-xl font-semibold mb-3">Deployment & Training</h3>
+                                    <p class="text-gray-300 mb-3">
+                                        The final phase involved deployment and user onboarding:
+                                    </p>
+                                    <ul class="list-disc list-inside text-gray-300 mb-3 pl-4">
+                                        <li>Phased deployment to minimize disruption</li>
+                                        <li>Creating comprehensive documentation</li>
+                                        <li>Conducting training sessions for bank employees</li>
+                                        <li>Establishing a feedback mechanism for continuous improvement</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">Results & Impact</h2>
+                        <p class="text-gray-300 mb-6">
+                            The new banking interface resulted in significant improvements for both bank employees and customers:
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="glass p-6 rounded-xl text-center">
+                                <div class="w-12 h-12 bg-primary-700 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-tachometer-alt text-primary-400 text-xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">40%</h4>
+                                <p class="text-gray-400 text-sm">Faster transaction processing</p>
+                            </div>
+                            
+                            <div class="glass p-6 rounded-xl text-center">
+                                <div class="w-12 h-12 bg-primary-700 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-smile text-primary-400 text-xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">92%</h4>
+                                <p class="text-gray-400 text-sm">Employee satisfaction rate</p>
+                            </div>
+                            
+                            <div class="glass p-6 rounded-xl text-center">
+                                <div class="w-12 h-12 bg-primary-700 bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-bug text-primary-400 text-xl"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold mb-2">65%</h4>
+                                <p class="text-gray-400 text-sm">Reduction in user errors</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-300 mb-6">
+                            Additional qualitative benefits included:
+                        </p>
+                        <ul class="list-disc list-inside space-y-3 text-gray-300 mb-6 pl-4">
+                            <li>Improved customer service due to faster processing times</li>
+                            <li>Reduced training time for new employees</li>
+                            <li>Enhanced data visibility for management decision-making</li>
+                            <li>More efficient reporting capabilities</li>
+                            <li>Positive feedback from both staff and customers</li>
+                        </ul>
+                        <p class="text-gray-300">
+                            The project was considered a major success by bank management and has served as a model for future digital transformation initiatives within the organization.
+                        </p>
+                    </div>
+                    
+                    <div class="glass rounded-2xl p-8">
+                        <h2 class="text-2xl font-display font-bold mb-6">Key Learnings</h2>
+                        <p class="text-gray-300 mb-6">
+                            This project provided valuable insights and learning opportunities:
+                        </p>
+                        <ul class="list-disc list-inside space-y-3 text-gray-300 mb-6 pl-4">
+                            <li><span class="font-medium text-white">Balancing innovation with stability</span> - Working in a banking environment taught me how to introduce modern features while maintaining the reliability expected in financial systems</li>
+                            <li><span class="font-medium text-white">User-centered design in enterprise applications</span> - I gained experience in applying UX principles to complex systems with multiple user types and varied technical expertise</li>
+                            <li><span class="font-medium text-white">Stakeholder management</span> - Navigating the needs and expectations of different departments and management levels was crucial to the project's success</li>
+                            <li><span class="font-medium text-white">Legacy system integration</span> - I developed strategies for interfacing modern frontend technologies with established backend systems</li>
+                            <li><span class="font-medium text-white">Financial industry regulations</span> - Understanding and implementing UI/UX within the context of banking regulations and security requirements</li>
+                        </ul>
+                        <p class="text-gray-300">
+                            This project significantly enhanced my skills in React.js development, UI/UX design, and project management within a highly regulated industry context.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="lg:w-4/12">
+                    <!-- Technologies Used -->
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h3 class="text-xl font-semibold mb-4">Technologies Used</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fab fa-react text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">React.js</h4>
+                                    <p class="text-sm text-gray-400">Frontend framework for building the user interface</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fab fa-js text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">JavaScript (ES6+)</h4>
+                                    <p class="text-sm text-gray-400">Core programming language</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fab fa-css3-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">CSS3 & Sass</h4>
+                                    <p class="text-sm text-gray-400">Styling and animations</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fas fa-code-branch text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Redux</h4>
+                                    <p class="text-sm text-gray-400">State management</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fas fa-chart-line text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Chart.js</h4>
+                                    <p class="text-sm text-gray-400">Data visualization</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fas fa-server text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">REST APIs</h4>
+                                    <p class="text-sm text-gray-400">Backend communication</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-primary-700 bg-opacity-20 flex-shrink-0 flex items-center justify-center text-primary-400">
+                                    <i class="fas fa-mobile-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Responsive Design</h4>
+                                    <p class="text-sm text-gray-400">Multi-device compatibility</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- My Role -->
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <h3 class="text-xl font-semibold mb-4">My Role</h3>
+                        <ul class="space-y-3 text-gray-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>User research and workflow analysis</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>Interface design and prototyping</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>Frontend development with React.js</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>API integration with backend services</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>Usability testing and refinement</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>Documentation and training materials</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fas fa-check-circle text-primary-400 mt-1"></i>
+                                <span>Coordination with IT infrastructure team</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Testimonial -->
+                    <div class="glass rounded-2xl p-8 mb-8">
+                        <div class="flex justify-center mb-4">
+                            <i class="fas fa-quote-left text-4xl text-primary-700 opacity-50"></i>
+                        </div>
+                        <blockquote class="text-gray-300 italic text-center mb-6">
+                            Rumesh's contribution to modernizing our banking interface has significantly improved our operational efficiency. His attention to detail and user-centered approach resulted in a system that our staff quickly embraced and now can't imagine working without.
+                        </blockquote>
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 rounded-full overflow-hidden mb-3">
+                                <img src="assests/images/test.png" alt="Sunil Perera" class="w-full h-full object-cover">
+                            </div>
+                            <p class="font-medium">Sunil Perera</p>
+                            <p class="text-sm text-gray-400">IT Manager, People's Bank</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Other Projects -->
+                    <div class="glass rounded-2xl p-8">
+                        <h3 class="text-xl font-semibold mb-4">Other Projects</h3>
+                        <div class="space-y-4">
+                            <a href="project-smart-campus.html" class="block group">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="assests/images/test.png" alt="Smart Campus Solution" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium group-hover:text-primary-400 transition-colors">Smart Campus Solution</h4>
+                                        <p class="text-sm text-gray-400">IoT-based campus management system</p>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <a href="project-elearning.html" class="block group">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="assests/images/test.png" alt="E-Learning Platform" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium group-hover:text-primary-400 transition-colors">E-Learning Platform</h4>
+                                        <p class="text-sm text-gray-400">Web-based learning management system</p>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <a href="project-blockchain-certificates.html" class="block group">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-20 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                        <img src="assests/images/test.png" alt="Blockchain Certificate System" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium group-hover:text-primary-400 transition-colors">Blockchain Certificate System</h4>
+                                        <p class="text-sm text-gray-400">Secure credential verification</p>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <div class="text-center mt-6">
+                                <a href="all-projects.html" class="text-primary-400 hover:text-primary-300 inline-flex items-center gap-2 text-sm font-medium transition-colors">
+                                    <span>View All Projects</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Next & Previous Project Navigation -->
+    <section class="py-10 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <a href="project-smart-campus.html" class="glass rounded-2xl p-6 flex items-center gap-4 w-full md:w-1/2 group hover:border-primary-700 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-full bg-primary-700 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-arrow-left text-primary-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Previous Project</p>
+                        <h4 class="font-medium group-hover:text-primary-400 transition-colors">Smart Campus Solution</h4>
+                    </div>
+                </a>
+                
+                <a href="project-elearning.html" class="glass rounded-2xl p-6 flex items-center gap-4 w-full md:w-1/2 group hover:border-primary-700 transition-all duration-300 md:justify-end">
+                    <div class="md:order-2">
+                        <div class="w-12 h-12 rounded-full bg-primary-700 bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-arrow-right text-primary-400"></i>
+                        </div>
+                    </div>
+                    <div class="md:text-right">
+                        <p class="text-sm text-gray-400">Next Project</p>
+                        <h4 class="font-medium group-hover:text-primary-400 transition-colors">E-Learning Platform</h4>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="py-20 relative">
+        <div class="container mx-auto px-6">
+            <div class="glass rounded-3xl overflow-hidden">
+                <div class="p-10 md:p-16 relative">
+                    <!-- Background Elements -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-primary-700 bg-opacity-10 rounded-full filter blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+                    <div class="absolute bottom-0 left-0 w-48 h-48 bg-primary-700 bg-opacity-10 rounded-full filter blur-3xl translate-y-1/3 -translate-x-1/4"></div>
+                    
+                    <div class="relative z-10 text-center">
+                        <h3 class="text-3xl font-display font-bold mb-4">Have a project in <span class="text-gradient">mind?</span></h3>
+                        <p class="text-gray-300 max-w-2xl mx-auto mb-8">
+                            I'm always interested in hearing about new projects and opportunities. Let's discuss how we can work together to bring your ideas to life.
+                        </p>
+                        <a href="index.html#contact" class="px-8 py-4 bg-primary-700 hover:bg-primary-600 text-white font-medium rounded-full inline-flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg">
+                            <span>Get In Touch</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="pt-20 pb-10 relative">
+        <div class="container mx-auto px-6">
+            <!-- Footer Top -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-16 pb-8 border-b border-gray-800">
+                <!-- Logo -->
+                <a href="index.html#home" class="flex items-center font-display font-bold text-2xl tracking-wider mb-6 md:mb-0">
+                    <span class="text-gradient">RUMESH</span>
+                    <span class="ml-1 text-white">CHATHURANGA</span>
+                </a>
+                
+                <!-- Footer Navigation -->
+                <ul class="flex flex-wrap justify-center gap-8">
+                    <li><a href="index.html#home" class="text-gray-400 hover:text-primary-400 transition-colors">Home</a></li>
+                    <li><a href="index.html#about" class="text-gray-400 hover:text-primary-400 transition-colors">About</a></li>
+                    <li><a href="index.html#experience" class="text-gray-400 hover:text-primary-400 transition-colors">Experience</a></li>
+                    <li><a href="index.html#projects" class="text-gray-400 hover:text-primary-400 transition-colors">Projects</a></li>
+                    <li><a href="index.html#blog" class="text-gray-400 hover:text-primary-400 transition-colors">Blog</a></li>
+                    <li><a href="index.html#contact" class="text-gray-400 hover:text-primary-400 transition-colors">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">
+                    © 2025 Rumesh Chathuranga. All Rights Reserved.
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="https://github.com/RumeshChathuranga" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/rumeshchathuranga" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://www.facebook.com/rumarumesh1220/" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/rumarumesh1220/" target="_blank" class="text-gray-500 hover:text-primary-400 transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-primary-700 text-white rounded-full flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-primary-600 focus:outline-none z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Three.js
+            initThreeJS();
+            
+            // Mobile Menu Toggle
+            const mobileMenuBtn = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMobileMenu = document.getElementById('close-mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.remove('translate-x-full');
+            });
+            
+            closeMobileMenu.addEventListener('click', function() {
+                mobileMenu.classList.add('translate-x-full');
+            });
+            
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('translate-x-full');
+                });
+            });
+            
+            // Navbar Scroll Effect
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-3', 'backdrop-blur-lg');
+                    navbar.classList.remove('py-4');
+                } else {
+                    navbar.classList.add('py-4');
+                    navbar.classList.remove('py-3', 'backdrop-blur-lg');
+                }
+            });
+            
+            // Back to Top Button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 500) {
+                    backToTopBtn.classList.remove('opacity-0', 'invisible');
+                    backToTopBtn.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopBtn.classList.remove('opacity-100', 'visible');
+                    backToTopBtn.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Three.js Background
+        function initThreeJS() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    
+    // Create a circle texture
+    const circleTexture = createCircleTexture();
+    
+    // Stars with circle texture
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0x4a6b8f,
+        size: 0.8,
+        sizeAttenuation: true,
+        opacity: 0.6,
+        transparent: true,
+        map: circleTexture
+    });
+    
+    const starsCount = 1500;
+    const positions = new Float32Array(starsCount * 3);
+    
+    for (let i = 0; i < starsCount; i++) {
+        const i3 = i * 3;
+        positions[i3] = (Math.random() - 0.5) * 300;
+        positions[i3 + 1] = (Math.random() - 0.5) * 300;
+        positions[i3 + 2] = (Math.random() - 0.5) * 300;
+    }
+    
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+    
+    // Particles with circle texture
+    const particlesCount = 150;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesMaterial = new THREE.PointsMaterial({
+        color: 0x0088ff,
+        size: 2.2,
+        sizeAttenuation: true,
+        opacity: 0.4,
+        transparent: true,
+        map: circleTexture
+    });
+    
+    const particlesPositions = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount; i++) {
+        const i3 = i * 3;
+        particlesPositions[i3] = (Math.random() - 0.5) * 200;
+        particlesPositions[i3 + 1] = (Math.random() - 0.5) * 200;
+        particlesPositions[i3 + 2] = (Math.random() - 0.5) * 200;
+    }
+    
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particles);
+    
+    camera.position.z = 50;
+    
+    // Mouse parallax effect
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    
+    document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        targetX = mouseX * 0.15;
+        targetY = mouseY * 0.15;
+        
+        stars.rotation.y += 0.0005;
+        stars.rotation.x += targetY * 0.01;
+        stars.rotation.y += targetX * 0.01;
+        
+        particles.rotation.y += 0.001;
+        particles.rotation.x += targetY * 0.02;
+        particles.rotation.y += targetX * 0.02;
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+    
+    // Function to create circle texture
+    function createCircleTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        
+        const context = canvas.getContext('2d');
+        context.beginPath();
+        context.arc(32, 32, 30, 0, Math.PI * 2);
+        context.closePath();
+        
+        // Create gradient for soft edges
+        const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.8)');
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        context.fillStyle = gradient;
+        context.fill();
+        
+        const texture = new THREE.Texture(canvas);
+        texture.needsUpdate = true;
+        return texture;
+    }
+}  
+    </script>
+</body>
+</html>
