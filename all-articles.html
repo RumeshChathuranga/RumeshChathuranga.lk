@@ -256,7 +256,7 @@
                 <!-- Search -->
                 <div class="w-full md:w-auto">
                     <div class="relative">
-                        <input type="text" placeholder="Search articles..." class="w-full md:w-64 px-5 py-3 rounded-full bg-dark-800 border border-gray-700 text-white focus:outline-none focus:border-primary-500 pr-10">
+                        <input type="text" id="search-input" placeholder="Search articles..." class="w-full md:w-64 px-5 py-3 rounded-full bg-dark-800 border border-gray-700 text-white focus:outline-none focus:border-primary-500 pr-10">
                         <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-400">
                             <i class="fas fa-search"></i>
                         </button>
@@ -266,7 +266,7 @@
         </div>
     </section>
     
-    <!-- Featured Article -->
+    <!-- Featured Article 
     <section class="py-8 relative">
         <div class="container mx-auto px-6">
             <div class="glass rounded-2xl overflow-hidden hover:border-primary-700 transition-all duration-300">
@@ -309,7 +309,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section>-->
     
     <!-- Articles Grid -->
     <section class="py-12 relative">
@@ -330,9 +330,9 @@
                             <span class="mx-2">•</span>
                             <span><i class="far fa-clock mr-2"></i>5 min read</span>
                         </div>
-                        <h4 class="text-xl font-semibold mb-3">The Future of AI in Everyday Applications</h4>
+                        <h4 class="text-xl font-semibold mb-3">The Transformative Impact of Artificial Intelligence on Global Industries</h4>
                         <p class="text-gray-400 mb-4">
-                            Exploring how artificial intelligence is transforming our daily interactions with technology and what to expect in the near future as machine learning becomes more integrated into daily life.
+                            An in-depth analysis of how artificial intelligence is reshaping business operations, customer experiences, and innovation across multiple sectors, with insights from my recent research and practical implementations.
                         </p>
                         <a href="article-ai-impact.html" class="text-primary-400 hover:text-primary-300 flex items-center gap-2 text-sm font-medium transition-colors mt-4">
                             <span>Read More</span>
@@ -653,7 +653,6 @@
     
     <!-- Scripts -->
     <script>
-        
         document.addEventListener('DOMContentLoaded', function() {
             // Get all category buttons
             const categoryButtons = document.querySelectorAll('.category-btn');
@@ -688,7 +687,7 @@
                 });
             });
         });
-
+    
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Three.js
             initThreeJS();
@@ -738,8 +737,6 @@
                     // Add active class to clicked button
                     this.classList.remove('bg-transparent', 'border', 'border-gray-700', 'text-gray-400');
                     this.classList.add('bg-primary-700', 'text-white');
-                    
-                    // Filter logic would go here in a real implementation
                 });
             });
             
@@ -765,133 +762,133 @@
         
         // Three.js Background
         function initThreeJS() {
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Create a circle texture
+            const circleTexture = createCircleTexture();
+            
+            // Stars with circle texture
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0x4a6b8f,
+                size: 0.8,
+                sizeAttenuation: true,
+                opacity: 0.6,
+                transparent: true,
+                map: circleTexture
+            });
+            
+            const starsCount = 1500;
+            const positions = new Float32Array(starsCount * 3);
+            
+            for (let i = 0; i < starsCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 300;
+                positions[i3 + 1] = (Math.random() - 0.5) * 300;
+                positions[i3 + 2] = (Math.random() - 0.5) * 300;
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+            
+            // Particles with circle texture
+            const particlesCount = 150;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x0088ff,
+                size: 2.2,
+                sizeAttenuation: true,
+                opacity: 0.4,
+                transparent: true,
+                map: circleTexture
+            });
+            
+            const particlesPositions = new Float32Array(particlesCount * 3);
+            for (let i = 0; i < particlesCount; i++) {
+                const i3 = i * 3;
+                particlesPositions[i3] = (Math.random() - 0.5) * 200;
+                particlesPositions[i3 + 1] = (Math.random() - 0.5) * 200;
+                particlesPositions[i3 + 2] = (Math.random() - 0.5) * 200;
+            }
+            
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            
+            camera.position.z = 50;
+            
+            // Mouse parallax effect
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                targetX = mouseX * 0.15;
+                targetY = mouseY * 0.15;
+                
+                stars.rotation.y += 0.0005;
+                stars.rotation.x += targetY * 0.01;
+                stars.rotation.y += targetX * 0.01;
+                
+                particles.rotation.y += 0.001;
+                particles.rotation.x += targetY * 0.02;
+                particles.rotation.y += targetX * 0.02;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Function to create circle texture
+            function createCircleTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                
+                const context = canvas.getContext('2d');
+                context.beginPath();
+                context.arc(32, 32, 30, 0, Math.PI * 2);
+                context.closePath();
+                
+                // Create gradient for soft edges
+                const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                context.fillStyle = gradient;
+                context.fill();
+                
+                const texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            }
+        }
     
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
-    
-    // Create a circle texture
-    const circleTexture = createCircleTexture();
-    
-    // Stars with circle texture
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.PointsMaterial({
-        color: 0x4a6b8f,
-        size: 0.8,
-        sizeAttenuation: true,
-        opacity: 0.6,
-        transparent: true,
-        map: circleTexture
-    });
-    
-    const starsCount = 1500;
-    const positions = new Float32Array(starsCount * 3);
-    
-    for (let i = 0; i < starsCount; i++) {
-        const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 300;
-        positions[i3 + 1] = (Math.random() - 0.5) * 300;
-        positions[i3 + 2] = (Math.random() - 0.5) * 300;
-    }
-    
-    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(stars);
-    
-    // Particles with circle texture
-    const particlesCount = 150;
-    const particlesGeometry = new THREE.BufferGeometry();
-    const particlesMaterial = new THREE.PointsMaterial({
-        color: 0x0088ff,
-        size: 2.2,
-        sizeAttenuation: true,
-        opacity: 0.4,
-        transparent: true,
-        map: circleTexture
-    });
-    
-    const particlesPositions = new Float32Array(particlesCount * 3);
-    for (let i = 0; i < particlesCount; i++) {
-        const i3 = i * 3;
-        particlesPositions[i3] = (Math.random() - 0.5) * 200;
-        particlesPositions[i3 + 1] = (Math.random() - 0.5) * 200;
-        particlesPositions[i3 + 2] = (Math.random() - 0.5) * 200;
-    }
-    
-    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlesPositions, 3));
-    const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-    scene.add(particles);
-    
-    camera.position.z = 50;
-    
-    // Mouse parallax effect
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-    
-    document.addEventListener('mousemove', (event) => {
-        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-        mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-    });
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    
-    // Animation loop
-    function animate() {
-        requestAnimationFrame(animate);
-        
-        targetX = mouseX * 0.15;
-        targetY = mouseY * 0.15;
-        
-        stars.rotation.y += 0.0005;
-        stars.rotation.x += targetY * 0.01;
-        stars.rotation.y += targetX * 0.01;
-        
-        particles.rotation.y += 0.001;
-        particles.rotation.x += targetY * 0.02;
-        particles.rotation.y += targetX * 0.02;
-        
-        renderer.render(scene, camera);
-    }
-    
-    animate();
-    
-    // Function to create circle texture
-    function createCircleTexture() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 64;
-        canvas.height = 64;
-        
-        const context = canvas.getContext('2d');
-        context.beginPath();
-        context.arc(32, 32, 30, 0, Math.PI * 2);
-        context.closePath();
-        
-        // Create gradient for soft edges
-        const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.8)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        
-        context.fillStyle = gradient;
-        context.fill();
-        
-        const texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
-        return texture;
-    }
-}
-
         document.addEventListener('DOMContentLoaded', function() {
             // Pagination settings
             const itemsPerPage = 6; // Number of articles per page
@@ -969,120 +966,8 @@
                 });
             }
             
-            // Show first page initially
-            showArticlesForPage(1);
-            
-            // Add click event to page buttons
-            document.querySelectorAll('.page-btn').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const page = parseInt(this.getAttribute('data-page'));
-                    currentPage = page;
-                    showArticlesForPage(page);
-                    // Scroll to top of articles section
-                    document.querySelector('.grid').scrollIntoView({ behavior: 'smooth' });
-                });
-            });
-            
-            // Add click event for previous button
-            document.querySelector('.prev-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (currentPage > 1) {
-                    currentPage--;
-                    showArticlesForPage(currentPage);
-                    // Scroll to top of articles section
-                    document.querySelector('.grid').scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-            
-            // Add click event for next button
-            document.querySelector('.next-btn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    showArticlesForPage(currentPage);
-                    // Scroll to top of articles section
-                    document.querySelector('.grid').scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pagination settings
-            const itemsPerPage = 6; // Number of articles per page
-            
-            // Get all articles
-            const allArticles = document.querySelectorAll('.grid > div');
-            const totalArticles = allArticles.length;
-            
-            // Calculate total pages
-            const totalPages = Math.ceil(totalArticles / itemsPerPage);
-            
-            // Initialize pagination
-            let currentPage = 1;
-            
-            // Get pagination elements
-            const paginationNav = document.querySelector('.pagination nav');
-            
-            // Replace pagination HTML with dynamic buttons
-            let paginationHTML = `
-                <a href="#" class="prev-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary-700 hover:text-primary-400 transition-colors">
-                    <i class="fas fa-chevron-left"></i>
-                </a>
-            `;
-            
-            // Add page number buttons
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1) {
-                    // First page (active)
-                    paginationHTML += `
-                        <a href="#" class="page-btn w-10 h-10 flex items-center justify-center rounded-full bg-primary-700 text-white transition-colors" data-page="${i}">${i}</a>
-                    `;
-                } else {
-                    // Other pages (inactive)
-                    paginationHTML += `
-                        <a href="#" class="page-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary-700 hover:text-primary-400 transition-colors" data-page="${i}">${i}</a>
-                    `;
-                }
-            }
-            
-            // Add next button
-            paginationHTML += `
-                <a href="#" class="next-btn w-10 h-10 flex items-center justify-center rounded-full border border-gray-700 text-gray-400 hover:border-primary-700 hover:text-primary-400 transition-colors">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            `;
-            
-            // Insert the pagination HTML
-            paginationNav.innerHTML = paginationHTML;
-            
-            // Function to show articles for current page
-            function showArticlesForPage(page) {
-                const startIndex = (page - 1) * itemsPerPage;
-                const endIndex = startIndex + itemsPerPage;
-                
-                // Hide all articles first
-                allArticles.forEach(article => {
-                    article.style.display = 'none';
-                });
-                
-                // Show only articles for current page
-                for (let i = startIndex; i < endIndex && i < totalArticles; i++) {
-                    allArticles[i].style.display = 'block';
-                }
-                
-                // Update active page button
-                document.querySelectorAll('.page-btn').forEach(btn => {
-                    const btnPage = parseInt(btn.getAttribute('data-page'));
-                    if (btnPage === page) {
-                        btn.classList.remove('border', 'border-gray-700', 'text-gray-400');
-                        btn.classList.add('bg-primary-700', 'text-white');
-                    } else {
-                        btn.classList.remove('bg-primary-700', 'text-white');
-                        btn.classList.add('border', 'border-gray-700', 'text-gray-400');
-                    }
-                });
-            }
+            // Make showArticlesForPage globally accessible
+            window.showArticlesForPage = showArticlesForPage;
             
             // Show first page initially
             showArticlesForPage(1);
@@ -1121,6 +1006,7 @@
                 }
             });
         });
+    
         // Handle navigation from other pages with hash links
         document.addEventListener('DOMContentLoaded', function() {
             // Check if the URL contains a hash
@@ -1146,7 +1032,80 @@
                 }
             }
         });
-
+    
+        // Simple search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the search input and button
+            const searchInput = document.getElementById('search-input');
+            const searchButton = searchInput ? searchInput.nextElementSibling : null;
+            const articleCards = document.querySelectorAll('.grid > div');
+            
+            // Check for search term in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchTermFromURL = urlParams.get('search');
+            
+            // Function to perform search
+            function performSearch(searchTerm) {
+                searchTerm = searchTerm.toLowerCase().trim();
+                
+                // If search is empty, show all articles
+                if (searchTerm === '') {
+                    articleCards.forEach(card => {
+                        card.style.display = 'block';
+                    });
+                    if (typeof showArticlesForPage === 'function') {
+                        showArticlesForPage(1);
+                        document.querySelector('.pagination').style.display = '';
+                    }
+                    return;
+                }
+                
+                // Hide pagination when searching
+                const pagination = document.querySelector('.pagination');
+                if (pagination) {
+                    pagination.style.display = 'none';
+                }
+                
+                // Filter articles based on search term
+                articleCards.forEach(card => {
+                    // Get content to search in
+                    const title = card.querySelector('h4') ? card.querySelector('h4').textContent.toLowerCase() : '';
+                    const description = card.querySelector('p') ? card.querySelector('p').textContent.toLowerCase() : '';
+                    const categorySpan = card.querySelector('.absolute.top-4.left-4 span');
+                    const category = categorySpan ? categorySpan.textContent.toLowerCase() : '';
+                    
+                    // Check if any content matches search term
+                    const matchesSearch = 
+                        title.includes(searchTerm) || 
+                        description.includes(searchTerm) || 
+                        category.includes(searchTerm);
+                    
+                    // Show/hide card based on match
+                    card.style.display = matchesSearch ? 'block' : 'none';
+                });
+            }
+            
+            // Handle search input
+            if (searchInput) {
+                // If URL has search term, use it
+                if (searchTermFromURL) {
+                    searchInput.value = searchTermFromURL;
+                    setTimeout(() => performSearch(searchTermFromURL), 300);
+                }
+                
+                // Add keyup event
+                searchInput.addEventListener('keyup', function() {
+                    performSearch(this.value);
+                });
+                
+                // Add button click event
+                if (searchButton) {
+                    searchButton.addEventListener('click', function() {
+                        performSearch(searchInput.value);
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>
