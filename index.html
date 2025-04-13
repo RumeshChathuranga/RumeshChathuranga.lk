@@ -1638,26 +1638,19 @@
         
         // Handle navigation from other pages with hash links
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if the URL contains a hash
             if (window.location.hash) {
-                // Get the hash without the '#' symbol
-                const targetId = window.location.hash;
-                
-                // Get the element with that ID
+                const targetId = window.location.hash; // Keep the # symbol
                 const targetElement = document.querySelector(targetId);
+                const navbarHeight = document.getElementById('navbar').offsetHeight;
                 
-                // Get navbar height to offset the scroll position
-                const navbarHeight = document.getElementById('navbar')?.offsetHeight || 0;
-                
-                // If the target element exists, scroll to it
                 if (targetElement) {
-                    // Use requestAnimationFrame for smoother performance
-                    requestAnimationFrame(() => {
+                    // Increase the timeout to ensure the page has fully loaded
+                    setTimeout(function() {
                         window.scrollTo({
                             top: targetElement.offsetTop - navbarHeight,
                             behavior: 'smooth'
                         });
-                    });
+                    }, 300); // Longer timeout for better reliability
                 }
             }
         });
