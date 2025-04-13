@@ -1647,7 +1647,7 @@
                     // Increase the timeout to ensure the page has fully loaded
                     setTimeout(function() {
                         window.scrollTo({
-                            top: targetElement.offsetTop - navbarHeight,
+                            top: targetElement.offsetTop,
                             behavior: 'smooth'
                         });
                     }, 300); // Longer timeout for better reliability
