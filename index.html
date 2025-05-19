@@ -1278,7 +1278,7 @@
             // Load Three.js and P5.js background animations
             if (typeof THREE !== 'undefined' && document.getElementById('canvas-container')) {
                 initThreeJS();
-            }
+    }
             
             if (typeof p5 !== 'undefined') {
                 initP5JS();
@@ -1291,44 +1291,19 @@
         });
         
         // Three.js Background - Will be loaded asynchronously after page load
-        function initThreeJS() {
+          function initThreeJS() {
             const scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for better performance
+            renderer.setPixelRatio(window.devicePixelRatio);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
             
-            // Function to create circular texture for particles
-            function createCircleTexture(color, size) {
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const context = canvas.getContext('2d');
-                
-                // Draw circle with gradient
-                const gradient = context.createRadialGradient(
-                    size/2, size/2, 0,
-                    size/2, size/2, size/2
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.5)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                
-                context.fillStyle = gradient;
-                context.fillRect(0, 0, size, size);
-                
-                const texture = new THREE.Texture(canvas);
-                texture.needsUpdate = true;
-                return texture;
-            }
+            // Create a circle texture
+            const circleTexture = createCircleTexture();
             
-            // Reduced particle count for better performance
-            const starsCount = window.innerWidth < 768 ? 750 : 1500; // Reduce for mobile
-            const particlesCount = window.innerWidth < 768 ? 75 : 150; // Reduce for mobile
-            
-            // Create stars
+            // Stars with circle texture
             const starsGeometry = new THREE.BufferGeometry();
             const starsMaterial = new THREE.PointsMaterial({
                 color: 0x4a6b8f,
@@ -1336,11 +1311,12 @@
                 sizeAttenuation: true,
                 opacity: 0.6,
                 transparent: true,
-                map: createCircleTexture('#4a6b8f', 64), // Smaller texture
-                alphaTest: 0.1
+                map: circleTexture
             });
             
+            const starsCount = 1500;
             const positions = new Float32Array(starsCount * 3);
+            
             for (let i = 0; i < starsCount; i++) {
                 const i3 = i * 3;
                 positions[i3] = (Math.random() - 0.5) * 300;
@@ -1349,10 +1325,12 @@
             }
             
             starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
             const stars = new THREE.Points(starsGeometry, starsMaterial);
             scene.add(stars);
             
-            // Create Particles
+            // Particles with circle texture
+            const particlesCount = 150;
             const particlesGeometry = new THREE.BufferGeometry();
             const particlesMaterial = new THREE.PointsMaterial({
                 color: 0x0088ff,
@@ -1360,8 +1338,7 @@
                 sizeAttenuation: true,
                 opacity: 0.4,
                 transparent: true,
-                map: createCircleTexture('#0088ff', 64), // Smaller texture
-                alphaTest: 0.1
+                map: circleTexture
             });
             
             const particlesPositions = new Float32Array(particlesCount * 3);
@@ -1378,44 +1355,27 @@
             
             camera.position.z = 50;
             
-            // Mouse parallax effect - throttled for better performance
+            // Mouse parallax effect
             let mouseX = 0;
             let mouseY = 0;
             let targetX = 0;
             let targetY = 0;
-            let lastMoveTime = 0;
             
             document.addEventListener('mousemove', (event) => {
-                const now = Date.now();
-                if (now - lastMoveTime > 50) { // Throttle to 20fps
-                    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-                    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-                    lastMoveTime = now;
-                }
-            }, { passive: true });
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
             
-            // Throttled resize handler
-            let resizeTimeout;
+            // Handle window resize
             window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                }, 200);
-            }, { passive: true });
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
             
-            // Animation loop with optimized render frequency
-            let lastRenderTime = 0;
-            const renderInterval = 1000 / 30; // Cap at 30fps for better performance
-            
-            function animate(currentTime) {
+            // Animation loop
+            function animate() {
                 requestAnimationFrame(animate);
-                
-                // Throttle rendering to specified FPS
-                if (currentTime - lastRenderTime < renderInterval) return;
-                lastRenderTime = currentTime;
                 
                 targetX = mouseX * 0.15;
                 targetY = mouseY * 0.15;
@@ -1432,8 +1392,33 @@
             }
             
             animate();
+            
+            // Function to create circle texture
+            function createCircleTexture() {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                
+                const context = canvas.getContext('2d');
+                context.beginPath();
+                context.arc(32, 32, 30, 0, Math.PI * 2);
+                context.closePath();
+                
+                // Create gradient for soft edges
+                const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                context.fillStyle = gradient;
+                context.fill();
+                
+                const texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+                return texture;
+            }
         }
-        
+    
         // P5.js Interactive Elements - Optimized for performance
         function initP5JS() {
             let sketch = function(p) {
